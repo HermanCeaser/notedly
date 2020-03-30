@@ -49,7 +49,7 @@ const server = new ApolloServer({
 		const user = getUser(token)
 		console.log(user)
 		//Add Models to the context
-		return { models }
+		return { models, user }
 	} 
 })
 
