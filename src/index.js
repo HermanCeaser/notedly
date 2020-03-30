@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken')
 const helmet = require('helmet') //For Securing our HTTP headers against common web vulnerabilities
 const cors = require('cors') //Cross Origin Resource Sharing
 const depthLimit = require('graphql-depth-limit')
-const { createComplexityLimitRule } = require('graphql-validity-complexity')
+const { createComplexityLimitRule } = require('graphql-validation-complexity')
 
 //Local Imports
 const db = require('./db')
