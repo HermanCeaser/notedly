@@ -4,6 +4,10 @@ const express = require('express')
 const { ApolloServer} = require('apollo-server-express')
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
+const helmet = require('helmet') //For Securing our HTTP headers against common web vulnerabilities
+const cors = require('cors') //Cross Origin Resource Sharing
+const depthLimit = require('graphql-depth-limit')
+const { createComplexityLimitRule } = require('graphql-validity-complexity')
 
 //Local Imports
 const db = require('./db')
@@ -21,6 +25,10 @@ const DB_HOST = process.env.DB_HOST
 
 //create an Express app
 const app = express()
+//Apply Helmet Middleware for security
+app.use(helmet())
+//Apply Cross Origin Resource sharing middleware
+app.use(cors())
 
 //Connect to the database
 db.connect(DB_HOST);
@@ -42,6 +50,7 @@ const getUser =  token => {
 const server = new ApolloServer({ 
 	typeDefs, 
 	resolvers,
+	validationRules: [depthLimit(5), createComplexityLimitRule(1000)],
 	context: ({ req }) => {
 		//get the token from request headers
 		const token = req.headers.authorization
