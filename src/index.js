@@ -59,7 +59,9 @@ const server = new ApolloServer({
 		console.log(user)
 		//Add Models to the context
 		return { models, user }
-	} 
+	} ,
+	playground:true,
+	introspection:true
 })
 
 //Apply Apollo graphQL middleware and set the path to /api
