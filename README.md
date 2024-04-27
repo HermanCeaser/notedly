@@ -19,4 +19,4 @@ This repository contains code for the notedly App API
 - Create a dotenv file in your root project folder 
 - Insert  a variable `DB_HOST = mongodb://localhost:27017/notedly` and `JWT_SECRET = yourPassPhrase`
 - Use `$ npm run dev` to start your project 
-- Open [http://localhost:4000](http://localhost:3000) to view it in the browser
+- Open [http://localhost:4000](http://localhost:4000) to view it in the browser

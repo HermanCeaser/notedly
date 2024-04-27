@@ -9,6 +9,7 @@ module.exports = {
 
 		//connect to the DB
 		mongoose.connect(DB_HOST)
+		console.log('Connected To DB successfully!!');
 		//log an error if we fail to connect
 		mongoose.connection.on('error', err => {
 			console.log(err)
