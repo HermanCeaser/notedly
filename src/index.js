@@ -1,13 +1,16 @@
 // index.js
-// This is the main entry point of our application
-const express = require('express')
-const { ApolloServer} = require('apollo-server-express')
+// Convert to EJS Imports
+const express  = require('express');
+const { ApolloServer } =  require('@apollo/server');
+const { expressMiddleware } = require('@apollo/server/express4');
+const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
 require('dotenv').config()
-const jwt = require('jsonwebtoken')
-const helmet = require('helmet') //For Securing our HTTP headers against common web vulnerabilities
-const cors = require('cors') //Cross Origin Resource Sharing
-const depthLimit = require('graphql-depth-limit')
-const { createComplexityLimitRule } = require('graphql-validation-complexity')
+
+// Pending Imports
+// const depthLimit = require('graphql-depth-limit')
+// const { createComplexityLimitRule } = require('graphql-validation-complexity')
 
 //Local Imports
 const db = require('./db')
@@ -26,7 +29,26 @@ const DB_HOST = process.env.DB_HOST
 //create an Express app
 const app = express()
 //Apply Helmet Middleware for security
-app.use(helmet())
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        imgSrc: [
+          `'self'`,
+          "data:",
+          "apollo-server-landing-page.cdn.apollographql.com",
+        ],
+        scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
+        manifestSrc: [
+          `'self'`,
+          "apollo-server-landing-page.cdn.apollographql.com",
+        ],
+        frameSrc: [`'self'`, "sandbox.embed.apollographql.com"],
+      },
+    },
+  })
+);
 //Apply Cross Origin Resource sharing middleware
 app.use(cors())
 
@@ -47,28 +69,51 @@ const getUser =  token => {
 }
 
 //Apollo server setup
-const server = new ApolloServer({ 
-	typeDefs, 
+// const server = new ApolloServer({ 
+// 	typeDefs, 
+// 	resolvers,
+// 	validationRules: [depthLimit(5), createComplexityLimitRule(1000)],
+// 	context: ({ req }) => {
+// 		//get the token from request headers
+// 		const token = req.headers.authorization
+// 		//try to retrieve a user with a token
+// 		const user = getUser(token)
+// 		// console.log(user)
+// 		//Add Models to the context
+// 		return { models, user }
+// 	} ,
+// 	playground:true,
+// 	introspection:true
+// })
+
+const server = new ApolloServer({
+	typeDefs,
 	resolvers,
-	validationRules: [depthLimit(5), createComplexityLimitRule(1000)],
-	context: ({ req }) => {
-		//get the token from request headers
-		const token = req.headers.authorization
-		//try to retrieve a user with a token
-		const user = getUser(token)
-		// console.log(user)
-		//Add Models to the context
-		return { models, user }
-	} ,
-	playground:true,
-	introspection:true
-})
+	playground: true,
+});
+
+server.start().then((err)=>{
+	if(err) throw err;
+
+	app.use('/api', express.json(), expressMiddleware(server, {
+		context: async ({ req }) => {
+			//get the token from request headers
+			const token = req.headers.authorization
+			//try to retrieve a user with a token
+			const user = getUser(token)
+			//Add Models to the context
+			return { models, user }
+		} ,	
+	}));
+});
 
 //Apply Apollo graphQL middleware and set the path to /api
-server.applyMiddleware({ app, path:'/api' })
+// server.applyMiddleware({ app, path:'/api' })
+
+
 
 app.listen({ port }, () => 
 	console.log(
-		`GraphQL Server running at http://localhost:${ port }${ server.graphqlPath }`
+		`GraphQL Server running at http://localhost:${ port }/api`
 	)
 )
