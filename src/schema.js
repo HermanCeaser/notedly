@@ -1,5 +1,5 @@
 //import GraphQL 
-const { gql } = require('apollo-server-express')
+const { gql } = require('graphql-tag')
 
 //Construct a schema of GraphQL
 module.exports = gql `
